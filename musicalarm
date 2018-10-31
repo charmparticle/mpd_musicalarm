@@ -1,0 +1,56 @@
+#!/bin/bash
+#######################
+# Note that I assume you have mp3 support in mpd, and libmp3lame in ffmpeg. If you don't, you'll
+# need to edit this script to change some things - make the silent mp3 a silent ogg, etc.
+#######################
+MAXVOL=75
+MUSICDIR="$HOME/Music"
+WAKEUPSONGS="$HOME/.config/mpd/playlists/awakeupsongs.m3u"
+WAKEUPRADIO="http://ice1.somafm.com/sonicuniverse-128-mp3"
+
+mksilentmp3()
+{
+    ffmpeg -ar 48000 -t 5 -f s16le -acodec pcm_s16le -ac 2 -i /dev/zero -acodec libmp3lame -aq 4 "$MUSICDIR/5sec.mp3"
+}
+
+prepare()
+{
+	[[ -e "$MUSICDIR/5sec.mp3" ]] || mksilentmp3
+  mpc enable 2
+  mpc enable 1
+}
+
+fadein()
+{
+	volume=0
+	for i in $(seq 1 $MAXVOL | sort -rn)
+	do
+		((volume++))
+		mpc volume "$volume" >/dev/null 2>&1
+		t="$(echo "round((log $i)/(log 3))" | wcalc -P0 -q | tr -d ' ')"
+		sleep "$t" 
+	done
+}
+
+
+playlocal()
+{
+	#in order to set the volume to 0, I have to play something.
+	#==========================
+	mpc clear
+	mpc add 5sec.mp3
+	mpc play
+	mpc volume 0
+	#==========================
+	if [[ -e "$WAKEUPSONGS" ]]
+	then
+		shuf < "$WAKEUPSONGS" | mpc add
+	else
+		echo "$WAKEUPRADIO" | mpc add
+	fi
+	mpc --format "%artist% - %title%" | head -1
+	fadein
+}
+
+prepare
+playlocal
