@@ -1,0 +1,4 @@
+musicdir=~/MusicDir
+musicalarm_playlist=~/.config/mpd/playlists/awakeupsongs.m3u
+musicalarm_radio=http://67.212.168.102:8000
+musicalarm_maxvol=45
