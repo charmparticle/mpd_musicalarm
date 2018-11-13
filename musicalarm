@@ -10,7 +10,7 @@ config_file=~/.config/mpd_musicalarm/config
 get_config_value()
 {
 	config_key=$1
-	config_value="$(grep "$config_key" "$config_file" 2>/dev/null | cut -d '=' -f 2 | sed "s#~#$HOME#")"
+	config_value="$(grep "^$config_key" "$config_file" 2>/dev/null | cut -d '=' -f 2 | sed "s#~#$HOME#")"
 }
 
 test_radio()

@@ -1,17 +1,20 @@
 ################################################################
 #do not add anything on either side of the '='
 ################################################################
-musicdir=~/Music
-musicalarm_playlist=~/.config/mpd/playlists/awakeupsongs.m3u
+#uncomment to activate any variable.
+#musicdir=~/Music
+#musicalarm_playlist=~/.config/mpd/playlists/awakeupsongs.m3u
 ################################################################
-musicalarm_radio0=http://67.212.168.102:8000
+#musicalarm_radio0=http://67.212.168.102:8000
 ################################################################
 #you can have 10 of these, 0-9, so if one doesn't work,
 #the musicalarm will try another and another until it either
 #finds one that works, or falls back on the built-in default
-#(which won't work either, if you don't have a network connection)
+#(which probably won't work either if those 10 fail)
+#In fact, for all of these values, if there is nothing, or an
+#invalid value, a default will be used, instead.
 ################################################################
-musicalarm_maxvol=75
+#musicalarm_maxvol=75
 ################################################################
 #Note that there is no way to make sure your sound is working.
 #if your connected speakers are off, mpc will still happily
