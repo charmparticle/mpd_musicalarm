@@ -16,27 +16,38 @@ get_config_value()
 test_radio()
 {
 	valid_radio=false
+	echo $xxx
 	xxx=$(pwgen -N 1 -s 5)
+	#this is the common idiom for finding the PID of a subshell without using a bash4 specific feature.
 	( : ; echo $PPID > /tmp/curl_$xxx.pid; curl -r 0-1024 "$config_value" 1>/tmp/curl_$xxx.out 2>/dev/null) &
 	sleep 1
 	kill $(cat /tmp/curl_$xxx.pid) 2>/dev/null
-	ffprobe /tmp/curl.out 2>&1 | tail -1 | grep -q Audio && valid_radio=true
+	ffprobe /tmp/curl_$xxx.out 2>&1 | tail -1 | grep -q Audio && valid_radio=true
 	rm /tmp/curl_$xxx.pid
 	rm /tmp/curl_$xxx.out
 }
 
-get_config_value musicalarm_maxvol
-[ "$config_value" -eq "$config_value" ] 2>/dev/null && MAXVOL=$config_value
+init(){
+	get_config_value musicalarm_maxvol
+	[ "$config_value" -eq "$config_value" ] 2>/dev/null && MAXVOL=$config_value
 
-get_config_value musicdir
-[ -d "$config_value" ] 2>/dev/null && MUSICDIR=$config_value
+	get_config_value musicdir
+	[ -d "$config_value" ] 2>/dev/null && MUSICDIR=$config_value
 
-get_config_value musicalarm_playlist
-[ -f "$config_value" ] 2>/dev/null && WAKEUPSONGS=$config_value
+	get_config_value musicalarm_playlist
+	[ -f "$config_value" ] 2>/dev/null && WAKEUPSONGS=$config_value
 
-get_config_value musicalarm_radio
-test_radio "$config_value"
-$valid_radio && WAKEUPRADIO=$config_value
+	for i in $(seq 0 9)
+	do
+		get_config_value "musicalarm_radio$i"
+		test_radio "$config_value"
+		if $valid_radio
+		then
+		  WAKEUPRADIO=$config_value
+			break
+		fi
+	done
+}
 
 mksilentmp3()
 {
@@ -82,6 +93,7 @@ play()
 	#==========================
 	mpc clear
 	mpc add 5sec.mp3 || mpc add "file:///tmp/5sec.mp3"
+	mpc -f "%file%"
 	mpc play
 	mpc volume 0
 	#==========================
@@ -94,5 +106,6 @@ play()
 	fadein
 }
 
+init
 prepare
 play
