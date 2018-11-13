@@ -1,23 +1,65 @@
 #!/bin/bash
 #######################
-# Note that I assume you have mp3 support in mpd, and libmp3lame in ffmpeg. If you don't, you'll
-# need to edit this script to change some things - make the silent mp3 a silent ogg, etc.
-#######################
 MAXVOL=75
 MUSICDIR="$HOME/Music"
+WAKEUPRADIO="http://67.212.168.102:8000"
 WAKEUPSONGS="$HOME/.config/mpd/playlists/awakeupsongs.m3u"
-WAKEUPRADIO="http://ice1.somafm.com/sonicuniverse-128-mp3"
+
+config_file=~/.config/mpd_scripts/config
+
+get_config_value()
+{
+	config_key=$1
+	config_value="$(grep "$config_key" "$config_file" 2>/dev/null | cut -d '=' -f 2 | sed "s#~#$HOME#")"
+}
+
+test_radio()
+{
+	valid_radio=false
+	xxx=$(pwgen -N 1 -s 5)
+	( : ; echo $PPID > /tmp/curl_$xxx.pid; curl -r 0-1024 "$config_value" 1>/tmp/curl_$xxx.out 2>/dev/null) &
+	sleep 1
+	kill $(cat /tmp/curl_$xxx.pid) 2>/dev/null
+	ffprobe /tmp/curl.out 2>&1 | tail -1 | grep -q Audio && valid_radio=true
+	rm /tmp/curl_$xxx.pid
+	rm /tmp/curl_$xxx.out
+}
+
+get_config_value musicalarm_maxvol
+[ "$config_value" -eq "$config_value" ] 2>/dev/null && MAXVOL=$config_value
+
+get_config_value musicdir
+[ -d "$config_value" ] 2>/dev/null && MUSICDIR=$config_value
+
+get_config_value musicalarm_playlist
+[ -f "$config_value" ] 2>/dev/null && WAKEUPSONGS=$config_value
+
+get_config_value musicalarm_radio
+test_radio "$config_value"
+$valid_radio && WAKEUPRADIO=$config_value
 
 mksilentmp3()
 {
-    ffmpeg -ar 48000 -t 5 -f s16le -acodec pcm_s16le -ac 2 -i /dev/zero -acodec libmp3lame -aq 4 "$MUSICDIR/5sec.mp3"
+  # Note that I assume you have mp3 support in mpd, and libmp3lame in ffmpeg. If you don't, you'll
+  # need to edit this script to change some things - make the silent mp3 a silent ogg, etc.
+  #######################
+  destdir=$1
+  [[ -e "$destdir/5sec.mp3" ]] || ffmpeg -ar 48000 -t 5 -f s16le -acodec pcm_s16le -ac 2 -i /dev/zero -acodec libmp3lame -aq 4 "$destdir/5sec.mp3"
 }
 
 prepare()
 {
-	[[ -e "$MUSICDIR/5sec.mp3" ]] || mksilentmp3
-  mpc enable 2
-  mpc enable 1
+	mksilentmp3 "$MUSICDIR"
+	if mpc add 5sec.mp3 2>/dev/null
+	then
+		true
+	else
+		mksilentmp3 '/tmp'
+	fi
+	for output in $(mpc outputs | grep -o '[0-9]*')
+	do
+		mpc enable "$output"
+	done
 }
 
 fadein()
@@ -27,18 +69,19 @@ fadein()
 	do
 		((volume++))
 		mpc volume "$volume" >/dev/null 2>&1
-		t="$(echo "round((log $i)/(log 3))" | wcalc -P0 -q | tr -d ' ')"
+		t="$(echo "scale=0;(l($i)/l(3))" | bc -l)"
+		echo -ne "$t $volume\r"
 		sleep "$t" 
 	done
 }
 
 
-playlocal()
+play()
 {
 	#in order to set the volume to 0, I have to play something.
 	#==========================
 	mpc clear
-	mpc add 5sec.mp3
+	mpc add 5sec.mp3 || mpc add "file:///tmp/5sec.mp3"
 	mpc play
 	mpc volume 0
 	#==========================
@@ -48,9 +91,8 @@ playlocal()
 	else
 		echo "$WAKEUPRADIO" | mpc add
 	fi
-	mpc --format "%artist% - %title%" | head -1
 	fadein
 }
 
 prepare
-playlocal
+play
