@@ -9,44 +9,44 @@ config_file=~/.config/mpd_musicalarm/config
 
 get_config_value()
 {
-	config_key=$1
-	config_value="$(grep "^$config_key" "$config_file" 2>/dev/null | cut -d '=' -f 2 | sed "s#~#$HOME#")"
+  config_key=$1
+  config_value="$(grep "^$config_key" "$config_file" 2>/dev/null | cut -d '=' -f 2 | sed "s#~#$HOME#")"
 }
 
 test_radio()
 {
-	valid_radio=false
-	echo $xxx
-	xxx=$(pwgen -N 1 -s 5)
-	#this is the common idiom for finding the PID of a subshell without using a bash4 specific feature.
-	( : ; echo $PPID > /tmp/curl_$xxx.pid; curl -r 0-1024 "$config_value" 1>/tmp/curl_$xxx.out 2>/dev/null) &
-	sleep 1
-	kill $(cat /tmp/curl_$xxx.pid) 2>/dev/null
-	ffprobe /tmp/curl_$xxx.out 2>&1 | tail -1 | grep -q Audio && valid_radio=true
-	rm /tmp/curl_$xxx.pid
-	rm /tmp/curl_$xxx.out
+  valid_radio=false
+  echo $xxx
+  xxx=$(pwgen -N 1 -s 5)
+  #this is the common idiom for finding the PID of a subshell without using a bash4 specific feature.
+  ( : ; echo $PPID > /tmp/curl_$xxx.pid; curl -r 0-1024 "$config_value" 1>/tmp/curl_$xxx.out 2>/dev/null) &
+  sleep 1
+  kill $(cat /tmp/curl_$xxx.pid) 2>/dev/null
+  ffprobe /tmp/curl_$xxx.out 2>&1 | tail -1 | grep -q Audio && valid_radio=true
+  rm /tmp/curl_$xxx.pid
+  rm /tmp/curl_$xxx.out
 }
 
 init(){
-	get_config_value musicalarm_maxvol
-	[ "$config_value" -eq "$config_value" ] 2>/dev/null && MAXVOL=$config_value
+  get_config_value musicalarm_maxvol
+  [ "$config_value" -eq "$config_value" ] 2>/dev/null && MAXVOL=$config_value
 
-	get_config_value musicdir
-	[ -d "$config_value" ] 2>/dev/null && MUSICDIR=$config_value
+  get_config_value musicdir
+  [ -d "$config_value" ] 2>/dev/null && MUSICDIR=$config_value
 
-	get_config_value musicalarm_playlist
-	[ -f "$config_value" ] 2>/dev/null && WAKEUPSONGS=$config_value
+  get_config_value musicalarm_playlist
+  [ -f "$config_value" ] 2>/dev/null && WAKEUPSONGS=$config_value
 
-	for i in $(seq 0 9)
-	do
-		get_config_value "musicalarm_radio$i"
-		test_radio "$config_value"
-		if $valid_radio
-		then
-		  WAKEUPRADIO=$config_value
-			break
-		fi
-	done
+  for i in $(seq 0 9)
+  do
+    get_config_value "musicalarm_radio$i"
+    test_radio "$config_value"
+    if $valid_radio
+    then
+      WAKEUPRADIO=$config_value
+      break
+    fi
+  done
 }
 
 mksilentmp3()
@@ -60,50 +60,50 @@ mksilentmp3()
 
 prepare()
 {
-	mksilentmp3 "$MUSICDIR"
-	if mpc add 5sec.mp3 2>/dev/null
-	then
-		true
-	else
-		mksilentmp3 '/tmp'
-	fi
-	for output in $(mpc outputs | grep -o '[0-9]*')
-	do
-		mpc enable "$output"
-	done
+  mksilentmp3 "$MUSICDIR"
+  if mpc add 5sec.mp3 2>/dev/null
+  then
+    true
+  else
+    mksilentmp3 '/tmp'
+  fi
+  for output in $(mpc outputs | grep -o '[0-9]*')
+  do
+    mpc enable "$output"
+  done
 }
 
 fadein()
 {
-	volume=0
-	for i in $(seq 1 $MAXVOL | sort -rn)
-	do
-		((volume++))
-		mpc volume "$volume" >/dev/null 2>&1
-		t="$(echo "scale=0;(l($i)/l(3))" | bc -l)"
-		echo -ne "$t $volume\r"
-		sleep "$t" 
-	done
+  volume=0
+  for i in $(seq 1 $MAXVOL | sort -rn)
+  do
+    ((volume++))
+    mpc volume "$volume" >/dev/null 2>&1
+    t="$(echo "scale=0;(l($i)/l(3))" | bc -l)"
+    echo -ne "$t $volume\r"
+    sleep "$t" 
+  done
 }
 
 
 play()
 {
-	#in order to set the volume to 0, I have to play something.
-	#==========================
-	mpc clear
-	mpc add 5sec.mp3 || mpc add "file:///tmp/5sec.mp3"
-	mpc -f "%file%"
-	mpc play
-	mpc volume 0
-	#==========================
-	if [[ -e "$WAKEUPSONGS" ]]
-	then
-		shuf < "$WAKEUPSONGS" | mpc add
-	else
-		echo "$WAKEUPRADIO" | mpc add
-	fi
-	fadein
+  #in order to set the volume to 0, I have to play something.
+  #==========================
+  mpc clear
+  mpc add 5sec.mp3 || mpc add "file:///tmp/5sec.mp3"
+  mpc -f "%file%"
+  mpc play
+  mpc volume 0
+  #==========================
+  if [[ -e "$WAKEUPSONGS" ]]
+  then
+    shuf < "$WAKEUPSONGS" | mpc add
+  else
+    echo "$WAKEUPRADIO" | mpc add
+  fi
+  fadein
 }
 
 init
