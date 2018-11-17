@@ -40,7 +40,7 @@ init(){
   for i in $(seq 0 9)
   do
     get_config_value "musicalarm_radio$i"
-    test_radio "$config_value"
+    [[ "$config_value" != "" ]] && test_radio "$config_value"
     if $valid_radio
     then
       WAKEUPRADIO=$config_value
