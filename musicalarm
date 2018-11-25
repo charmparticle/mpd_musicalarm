@@ -22,6 +22,7 @@ test_radio()
   ( : ; echo $PPID > /tmp/curl_$xxx.pid; curl -r 0-1024 "$config_value" 1>/tmp/curl_$xxx.out 2>/dev/null) &
   sleep 1
   kill $(cat /tmp/curl_$xxx.pid) 2>/dev/null
+  sleep 1
   ffprobe /tmp/curl_$xxx.out 2>&1 | tail -1 | grep -q Audio && valid_radio=true
   rm /tmp/curl_$xxx.pid
   rm /tmp/curl_$xxx.out
