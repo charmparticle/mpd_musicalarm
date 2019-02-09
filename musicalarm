@@ -79,6 +79,10 @@ fadein()
   volume=0
   for i in $(seq 1 $MAXVOL | sort -rn)
   do
+    #on my system, mpc randomly wigged out. Now I can only get this script
+    #to work if I have mpc play run every freaking cycle.
+    #computers are supposed to be rational, damn it.
+    mpc play
     ((volume++))
     mpc volume "$volume" >/dev/null 2>&1
     t="$(echo "scale=0;(l($i)/l(3))" | bc -l)"
