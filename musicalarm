@@ -61,8 +61,8 @@ mksilentmp3()
 
 prepare()
 {
-  #make sure mpc is NOT in single mode; otherwise, mpc will
-  #pause after playing the silent mp3 file. 
+  #without this, mpc will just pause after adding the silent mp3
+  #if it randomly happens to be in single mode
   mpc single off
   mksilentmp3 "$MUSICDIR"
   if mpc add 5sec.mp3 2>/dev/null
@@ -82,6 +82,10 @@ fadein()
   volume=0
   for i in $(seq 1 $MAXVOL | sort -rn)
   do
+    # this shouldn't be necessary, but for ??? knows what reason,
+    # mpc has decided that if I don't remind it that I want to PLAY this
+    # music, it will just queue it up paused instead. Okay, I'll just
+    # run mpc play 5 million times because mpc decided to be stupid.
     ((volume++))
     mpc volume "$volume" >/dev/null 2>&1
     t="$(echo "scale=0;(l($i)/l(3))" | bc -l)"
