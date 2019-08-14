@@ -1,5 +1,5 @@
 # mpd_musicalarm
-A simple shellscript which serves as a music alarm. It uses mpd and mpc. Invoke it with cron or anacron or whatever it is the kids are using these days, testing first, of course.
+A simple shellscript which serves as a music alarm: it gently fades in a playlist or radio station until the music volume reaches a level you can set in a configuration file. It uses mpd, mpc, and ffmpeg. Invoke it with cron or anacron or whatever it is the kids are using these days, testing first, of course.
 
 modify $MAXVOL, $MUSICDIR, $WAKEUPSONGS and $WAKEUPRADIO to your needs, by creating a config file in `~/.config/mpd_musicalarm/config` with values set up separated by an equals sign only. Consult the example file to make your own.
 
