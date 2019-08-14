@@ -9,6 +9,6 @@ An interesting thing I learned while making this script: mpd will *not* set any 
 
 One other problem that bugged me for awhile was how to figure out if an internet radio stream is valid. I found a solution, which involves the use of ffprobe, so you'll need to install that if you want to be able to set your internet radio stream of choice in the config file.
 
-*DEPENDENCIES*
+**DEPENDENCIES**
 
 mpd, mpc, ffmpeg
