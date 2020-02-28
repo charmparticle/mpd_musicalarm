@@ -1,19 +1,25 @@
-################################################################
-#do not add anything on either side of the '='
-################################################################
-#uncomment and edit to set any variable. What you see here are
-#the defaults.
+#################################################################
+##do not add any space on either side of the '='
+#################################################################
+##uncomment to activate any variable.
 #musicdir=~/Music
 #musicalarm_playlist=~/.config/mpd/playlists/awakeupsongs.m3u
-################################################################
-#musicalarm_radio0=http://67.212.168.102:8000
-################################################################
-#you can have 10 of these, 0-9, so if one doesn't work,
-#the musicalarm will try another and another until it finds one
-#that works
-################################################################
-#musicalarm_maxvol=75
-################################################################
-#Note that there is no way to make sure your sound is working.
-#if your connected speakers are off, mpc will still happily
-#report a volume of "75"
+#################################################################
+#musicalarm_radio0=http://stream.wqxr.org/wqxr
+#musicalarm_radio1=http://18543.live.streamtheworld.com:80/KUSCMP96_SC
+#musicalarm_radio2=http://14923.live.streamtheworld.com:3690/KUSCMP96_S
+#musicalarm_radio3=http://stream1.early1900s.org:8080
+#musicalarm_radio4=http://stream2.early1900s.org:8080
+#musicalarm_radio5=http://ice1.somafm.com/bagel-128-mp3
+#musicalarm_radio6=http://ice2.somafm.com/bagel-128-mp3
+#musicalarm_radio7=http://stream.infomagia.com:8015/
+#################################################################
+##you can have 10 of these, 0-9, so if one doesn't work,
+##the musicalarm will try another and another until it either
+##finds one that works, or falls back on the built-in default
+#################################################################
+#musicalarm_maxvol=70
+#################################################################
+##Note that there is no way to make sure your sound is working.
+##if your connected speakers are off, mpc will still happily
+##report a volume of "75"
