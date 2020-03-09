@@ -134,4 +134,4 @@ play()
 init
 prepare
 play
-musicalarm-failsafe
+#musicalarm-failsafe
