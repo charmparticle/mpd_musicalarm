@@ -1,0 +1,11 @@
+#!/bin/bash
+if cat /sys/class/power_supply/BAT0/status | egrep 'Full'
+then
+    #we're fine
+    true
+else
+    #power is out or went out sometime last night. Stereo and TV are off.
+    #Better use the laptop speakers.
+    pactl set-card-profile 0 output:analog-stereo+input:analog-stereo
+    mpc volume 80
+fi
