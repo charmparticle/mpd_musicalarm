@@ -1,5 +1,7 @@
 # mpd_musicalarm
-A simple shellscript which serves as a music alarm: it gently fades in a playlist or radio station until the music volume reaches a level you can set in a configuration file. It uses mpd, mpc, and ffmpeg. Invoke it with cron or anacron or whatever it is the kids are using these days, testing first, of course.
+A simple shellscript which serves as a music alarm: it gently fades in a radio station or, if it can't connect to any, a local playlist, until the music volume reaches a level you can set in a configuration file. It uses mpd, mpc, and ffmpeg. Invoke it with cron or anacron or whatever it is the kids are using these days.
+
+As of 03/09/2020, I have added a failsafe script which mpd_musicalarm calls after it terminates, which makes sure the audio output works. Naturally, this script was made to work for my specific setup, so I have commented it out of musicalarm, but check it out and see if it works for you. You can find your pulseaudio profiles with the command pactl list cards, and use that to create your own failsafe script, based on the one provided here.
 
 modify $MAXVOL, $MUSICDIR, $WAKEUPSONGS and $WAKEUPRADIO to your needs, by creating a config file in `~/.config/mpd_musicalarm/config` with values set up separated by an equals sign only. Consult the example file to make your own.
 
